@@ -1,38 +1,95 @@
+@import url(//db.onlinewebfonts.com/c/c0cd6ec8ce6d2bbd315a13b62ed13550?family=AdihausDIN);
+
+* {
+  margin: 0;
+  font-family: 'AdihausDIN', Helvetica, arial;
+}
+
 .App {
-  text-align: center;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+h2 {
+  font-size: 30px;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.main {
+  min-height: 50vh;
+  min-width: 960px;
+  max-width: 1300px;
+  margin: 30px;
+  width: 100%;
+  background-color: black;
+  border-radius: 12px;
+  grid-template-columns: 1fr 1fr;
+  display: grid;
+  gap: 30px;
+  color: white;
+  overflow: hidden;
+  padding: 60px 40px;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.main-right-minting {
   display: flex;
   flex-direction: column;
+  justify-content: center;
+  gap: 2rem;
+}
+
+.main-left-nft {
+  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
+}
+
+.background-video {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover;
+  z-index: -1;
+}
+
+.actions {
+  display: flex;
+  gap: 20px;
+}
+
+.actions button {
+  text-decoration: none;
+  padding: 15px 50px;
+  font-size: 16px;
+  border: none;
+  text-transform: uppercase;
+  font-weight: 600;
+  border-radius: 25px;
+  cursor: pointer;
+  transition: 0.2s all ease-in-out;
+}
+
+.filled-button {
+  color: black;
+  background-color: white;
+}
+
+.transparent-button {
   color: white;
+  background-color: black;
+  border: 1px solid white !important;
 }
 
-.App-link {
-  color: #61dafb;
-}
+.actions button:hover {
+  background-color: #333;
+  color: white;
+} 
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.description {
+  color: #999;
 }
