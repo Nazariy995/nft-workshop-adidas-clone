@@ -6,15 +6,16 @@ import { ethers } from "ethers";
 import abi from "./contracts/contract.json"
 import { InProgress } from './components/InProgress';
 import { Minting } from './components/Minting';
-const CONTRACT_ADDRESS = "0x57cd010687515bC066c00abD518A4f245B24071D";
+const CONTRACT_ADDRESS = "0xc917b9Bfc19AD91DD7F1BeaCfB9C9D756947ceAb";
 
 function App() {
   const [account, setAccount] = useState();
   const [provider, setProvider] = useState()
   const [contract, setContract] = useState();
   const [minted, setMinted] = useState();
-  const [inProgress, setInProgress] = useState(true)
-  const [mintingStart, setMintingStart] = useState(false)
+  const [inProgress, setInProgress] = useState(false)
+  const [mintingStart, setMintingStart] = useState(true)
+  const [hash, setHash ] = useState();
 
 
   const connectWallet = async () => {
@@ -27,10 +28,20 @@ function App() {
     setAccount(null);
   }
 
+  const checkEtherscan = () => {
+    const url = `https://rinkeby.etherscan.io/tx/${hash}`;
+    window.open(url, '_blank');
+  }
+
   const mint = async () => {
-    let tx = await contract.mint(1, { value: 1000000000000000 });
+    // const signer = provider.getSigner();
+    // console.log(signer);
+    // contract.connect(signer);
+    let tx = await contract.mint(1);
     console.log("miting");
-    console.log(tx.hash);
+    setHash(tx.hash);
+    setInProgress(true);
+    setMintingStart(false);
     await tx.wait(3).then((receipt)=>{
       console.log(receipt, "all good")
     }, (error) => {
@@ -44,7 +55,7 @@ function App() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const accounts = await provider.listAccounts();
     const signer = provider.getSigner();
-    const contractInstance = new ethers.Contract(CONTRACT_ADDRESS, abi, provider);
+    const contractInstance = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
     // let totalSupplyHex = await contractInstance.totalSupply();
     // let totalSupply = totalSupplyHex.toNumber();
 
@@ -65,7 +76,10 @@ function App() {
           <video className='nft-video' src={nftVideo} width="400" height="400" playsInline={true} muted={true} autoPlay={true} loop={true}/>
         </div>
         <div className='main-right-minting'>
-          { inProgress && <InProgress />}
+          { inProgress && 
+            <InProgress 
+              checkEtherscan={checkEtherscan}
+            />}
           { mintingStart &&  
               <Minting 
                 minted={minted} 
