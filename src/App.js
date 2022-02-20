@@ -6,44 +6,40 @@ import { ethers } from "ethers";
 import abi from "./contracts/contract.json"
 import { InProgress } from './components/InProgress';
 import { Minting } from './components/Minting';
+import { Congrats } from './components/Congrats';
+import { useMoralis } from "react-moralis";
 const CONTRACT_ADDRESS = "0xc917b9Bfc19AD91DD7F1BeaCfB9C9D756947ceAb";
 
 function App() {
-  const [account, setAccount] = useState();
-  const [provider, setProvider] = useState()
-  const [contract, setContract] = useState();
+  const { authenticate, isAuthenticated, enableWeb3, user, logout, Moralis } = useMoralis();
   const [minted, setMinted] = useState();
   const [inProgress, setInProgress] = useState(false)
   const [mintingStart, setMintingStart] = useState(true)
+  const [congratsState, setCongratsState] = useState(false)
   const [hash, setHash ] = useState();
 
-
-  const connectWallet = async () => {
-    const accounts = await provider.send("eth_requestAccounts", []);
-    // const signer = provider.getSigner();
-    setAccount(accounts[0]);
-  }
-
-  const startOver = async () => {
-    setAccount(null);
-  }
-
   const checkEtherscan = () => {
+    if(!hash) return;
     const url = `https://rinkeby.etherscan.io/tx/${hash}`;
     window.open(url, '_blank');
   }
 
   const mint = async () => {
-    // const signer = provider.getSigner();
-    // console.log(signer);
-    // contract.connect(signer);
-    let tx = await contract.mint(1);
+    const tx = await Moralis.executeFunction({
+      contractAddress: CONTRACT_ADDRESS,
+      functionName: "mint",
+      abi: abi,
+      params: {
+        amount: 1
+      }
+    });
     console.log("miting");
     setHash(tx.hash);
     setInProgress(true);
     setMintingStart(false);
     await tx.wait(3).then((receipt)=>{
-      console.log(receipt, "all good")
+      setInProgress(false);
+      setCongratsState(true)
     }, (error) => {
       error.checkCall().then((error) => {
         console.log("Error", error);
@@ -52,21 +48,14 @@ function App() {
   }
 
   useEffect(async ()=>{
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const accounts = await provider.listAccounts();
-    const signer = provider.getSigner();
-    const contractInstance = new ethers.Contract(CONTRACT_ADDRESS, abi, signer);
-    // let totalSupplyHex = await contractInstance.totalSupply();
-    // let totalSupply = totalSupplyHex.toNumber();
-
-    if(accounts.length > 0){
-      setAccount(accounts[0])
+    if(isAuthenticated){
+      const web3Provider = await enableWeb3();
+      const contractInstance = new ethers.Contract(CONTRACT_ADDRESS, abi, web3Provider);
+      let totalSupplyHex = await contractInstance.totalSupply(0);
+      let totalSupply = totalSupplyHex.toNumber();
+      setMinted(totalSupply);
     }
-    setProvider(provider);
-    setContract(contractInstance)
-    // setSupply(contractInstance.total)
-    // setMinted(totalSupply);
-  }, [])
+  }, [user, isAuthenticated])
 
   return (
     <div className="App">
@@ -84,10 +73,15 @@ function App() {
               <Minting 
                 minted={minted} 
                 mint={mint} 
-                account={account}
-                startOver={startOver} 
-                connectWallet={connectWallet}  /> }
+                account={user}
+                startOver={logout} 
+                connectWallet={authenticate}  /> }
+          { congratsState && 
+              <Congrats 
+                checkEtherscan={checkEtherscan}
+              />}
         </div>
+        <div className='info'>MINTING NOW</div>
       </div>
     </div>
   )

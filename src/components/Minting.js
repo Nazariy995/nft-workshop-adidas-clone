@@ -1,10 +1,16 @@
 import React from 'react'
 
 export const Minting = (props) => {
+    console.log(props);
   return (
     <>
         <h2>Adidos: INTO THE METAVERSE</h2>
-          <div className='description'>{props.minted} minted / 300</div>
+          <div className='description'>
+                {props.minted ? 
+                    `${props.minted} minted / 300` :
+                    "Please connect wallet to start minting."
+                }
+        </div>
           <div className='actions'>
             {props.account ?
               <>
